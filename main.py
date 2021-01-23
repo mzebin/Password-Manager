@@ -1,15 +1,13 @@
+import pickle
 import string
 import tkinter as tk
 
 # Global Variables
 SHIFT = 40
-
-lowercase = string.ascii_lowercase
-uppercase = string.ascii_uppercase
-punctuation = string.punctuation
-digits = string.digits
-
-CHARACTERS = lowercase + uppercase + punctuation + digits
+CHARACTERS = string.ascii_lowercase + \
+			 string.ascii_uppercase + \
+			 string.punctuation + \
+			 string.digits
 
 
 # Functions
@@ -53,9 +51,6 @@ class Login:
 		self.password_entry = tk.Entry(self.login_window, show="*")
 		self.password_entry.grid(row=1, column=1, sticky="nsew")
 
-		self.create_acc_btn = tk.Button(self.login_window, text="Create Account", command=self.create_account)
-		self.create_acc_btn.grid(row=2, column=0, sticky="nsew")
-
 		self.login_btn = tk.Button(self.login_window, text="Login", command=self.validate_login)
 		self.login_btn.grid(row=2, column=1, sticky="nsew")
 
@@ -63,10 +58,28 @@ class Login:
 		self.login_window.mainloop()
 
 	def validate_login(self):
-		pass
+		username = self.username_entry.get()
+		password = self.password_entry.get()
 
-	def create_account(self):
-		pass
+		try:
+			with open("Data Files/users.dat", "rb") as file:
+				users_info = pickle.load(file)
+		except EOFError:
+			messagebox.showerror("PasswordManger - Error",
+								  "An unknown error occurred")
+
+		if username in users_info:
+			encrypted_password = users_info[username]
+			decrypted_password = decrypt(password)
+
+			if password == decrypted_password:
+				PasswordManger()
+			else:
+				messagebox.showerror("PasswordManger - Error", 
+									  "Incorrect Password.")
+		else:
+				messagebox.showerror("PasswordManger - Error", 
+									  "Incorrect Username.")
 
 
 class PasswordManger:
