@@ -1,2 +1,2 @@
 # Password-Manager
-A Simple GUI App to Manage Passwords using python. It uses dat files to store passwords in bytes.
+A simple GUI app to manage passwords using python. It encrypts the password and store it in .dat file as bytes.
