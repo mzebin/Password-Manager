@@ -1,6 +1,7 @@
 import pickle
 import string
 import tkinter as tk
+from tkinter import messagebox
 
 # Global Variables
 SHIFT = 40
@@ -54,10 +55,13 @@ class Login:
 		self.login_btn = tk.Button(self.login_window, text="Login", command=self.validate_login)
 		self.login_btn.grid(row=2, column=1, sticky="nsew")
 
+		# Key Bindings
+		self.login_window.bind("<Return>", self.validate_login)
+
 		# Start Mainloop
 		self.login_window.mainloop()
 
-	def validate_login(self):
+	def validate_login(self, event):
 		username = self.username_entry.get()
 		password = self.password_entry.get()
 
@@ -70,9 +74,10 @@ class Login:
 
 		if username in users_info:
 			encrypted_password = users_info[username]
-			decrypted_password = decrypt(password)
+			decrypted_password = decrypt(encrypted_password)
 
 			if password == decrypted_password:
+				self.login_window.destroy()
 				PasswordManger()
 			else:
 				messagebox.showerror("PasswordManger - Error", 
@@ -85,7 +90,11 @@ class Login:
 class PasswordManger:
 	
 	def __init__(self):
-		pass
+		# Create Window
+		self.main_window = tk.Tk()
+
+		# Start Mainloop
+		self.main_window.mainloop()
 
 
 if __name__ == "__main__":
