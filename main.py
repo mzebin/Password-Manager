@@ -1,15 +1,34 @@
+import string
 import tkinter as tk
+
+# Global Variables
+SHIFT = 40
+
+lowercase = string.ascii_lowercase
+uppercase = string.ascii_uppercase
+punctuation = string.punctuation
+digits = string.digits
+
+CHARACTERS = lowercase + uppercase + punctuation + digits
 
 
 # Functions
 
+def encrypt(text, shift=SHIFT):
+	shifted = CHARACTERS[shift:] + CHARACTERS[:shift]
+	table = str.maketrans(CHARACTERS, shifted)
 
-def encrypt(text):
-	pass
+	encrypted = text.translate(table)
+	return encrypted
 
 
-def decrypt(text):
-	pass
+def decrypt(text, shift=SHIFT):
+	shifted = CHARACTERS[shift:] + CHARACTERS[:shift]
+	table = str.maketrans(shifted, CHARACTERS)
+
+	decrypted = text.translate(table)
+	return decrypted
+
 
 
 class Login:
