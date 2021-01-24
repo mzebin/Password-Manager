@@ -16,7 +16,7 @@ CHARACTERS = string.ascii_lowercase + \
 class Login:
 	
 	def __init__(self):
-		# Create and configre Window
+		# Create and configure Window
 		self.login_window = tk.Tk()
 		self.login_window.title("Password Manager - Login")
 		self.login_window.resizable(0, 0)
@@ -120,6 +120,9 @@ class CreateAccount:
 				if password1 != password2:
 					messagebox.showerror("Password Manager - Error",
 										 "Passwords don't match.")
+				elif len(password1) < 4:
+					messagebox.showerror("Password Manager - Error",
+										 "Passwords too short.")
 				else:
 					users = {username: encrypt(password1)}
 					with open("Data Files/Users/users.dat", "wb") as file:
@@ -133,6 +136,9 @@ class CreateAccount:
 				if password1 != password2:
 					messagebox.showerror("Password Manager - Error",
 										 "Passwords don't match.")
+				elif len(password1) < 4:
+					messagebox.showerror("Password Manager - Error",
+										 "Passwords too short.")
 				else:
 					users = {username: encrypt(password1)}
 					with open("Data Files/Users/users.dat", "wb") as file:
@@ -147,6 +153,9 @@ class CreateAccount:
 				if password1 != password2:
 					messagebox.showerror("Password Manager - Error",
 										 "Passwords don't match.")
+				elif len(password1) < 4:
+					messagebox.showerror("Password Manager - Error",
+										 "Passwords too short.")
 				else:
 					with open("Data Files/Users/users.dat", "rb") as file:
 						users = pickle.load(file)
@@ -166,12 +175,67 @@ class PasswordManager:
 		# Create Window
 		self.main_window = tk.Tk()
 		self.main_window.title("Password Manager")
+		self.main_window.resizable(0, 0)
 
 		# Passwords File
 		self.passwords_file = "Data Files/Passwords/passwords_" + user + ".dat"
 
+		# Add Widgets
+
+		# Add Password
+
+		add_pass_entry = tk.Entry(self.main_window)
+		add_pass_entry.grid(row=0, column=0, sticky="nsew", pady=(10, 5))
+
+		add_pass_btn = tk.Button(self.main_window, text="Add a Password", command=self.add_password)
+		add_pass_btn.grid(row=0, column=1, sticky="nsew", pady=(10, 5))
+
+		# Update Password
+
+		update_pass_entry = tk.Entry(self.main_window)
+		update_pass_entry.grid(row=1, column=0, sticky="nsew", pady=(5, 5))
+
+		update_pass_btn = tk.Button(self.main_window, text="Update a Password", command=None)
+		update_pass_btn.grid(row=1, column=1, sticky="nsew", pady=(5, 5))
+
+		# Look Up Password
+
+		lookup_pass_entry = tk.Entry(self.main_window)
+		lookup_pass_entry.grid(row=2, column=0, sticky="nsew", pady=(5, 5))
+
+		lookup_pass_btn = tk.Button(self.main_window, text="Look Up a Password", command=None)
+		lookup_pass_btn.grid(row=2, column=1, sticky="nsew", pady=(5, 5))
+
+		# Copy Password
+
+		copy_pass_entry = tk.Entry(self.main_window)
+		copy_pass_entry.grid(row=3, column=0, sticky="nsew", pady=(5, 5))
+
+		copy_pass_btn = tk.Button(self.main_window, text="Copy a Password", command=None)
+		copy_pass_btn.grid(row=3, column=1, sticky="nsew", pady=(5, 5))
+
+		# Delete a Password
+
+		delete_pass_entry = tk.Entry(self.main_window)
+		delete_pass_entry.grid(row=4, column=0, sticky="nsew", pady=(5, 10))
+
+		delete_pass_btn = tk.Button(self.main_window, text="Delete a Password", command=None)
+		delete_pass_btn.grid(row=4, column=1, sticky="nsew", pady=(5, 10))
+
 		# Start Mainloop
 		self.main_window.mainloop()
+
+	def add_password(self):
+		pass
+
+	def update_password(self):
+		pass
+
+	def lookup_password(self):
+		pass
+
+	def copy_password(self):
+		pass
 
 
 # Functions
