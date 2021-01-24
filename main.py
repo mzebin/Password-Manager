@@ -39,6 +39,11 @@ class Login:
                                    command=self.validate_login)
         self.login_btn.grid(row=2, column=1, sticky="nsew")
 
+        self.create_account_btn = tk.Button(self.login_window,
+                                            text="Create Account",
+                                            command=lambda: CreateAccount())
+        self.create_account_btn.grid(row=2, column=1, sticky="nsew")
+
         # Key Bindings
         self.login_window.bind("<Return>", self.validate_login)
 
@@ -188,57 +193,172 @@ class PasswordManager:
 
         # Add Password
 
-        add_pass_entry = tk.Entry(self.main_window)
-        add_pass_entry.grid(row=0, column=0, sticky="nsew", pady=(10, 5))
+        self.add_pass_entry = tk.Entry(self.main_window)
+        self.add_pass_entry.grid(row=0, column=0, sticky="nsew", pady=(10, 5))
 
-        add_pass_btn = tk.Button(self.main_window, text="Add a Password",
-                                 command=self.add_password)
-        add_pass_btn.grid(row=0, column=1, sticky="nsew", pady=(10, 5))
+        self.add_pass_btn = tk.Button(self.main_window, text="Add a Password",
+                                      command=self.add_password)
+        self.add_pass_btn.grid(row=0, column=1, sticky="nsew", pady=(10, 5))
 
         # Update Password
 
-        update_pass_entry = tk.Entry(self.main_window)
-        update_pass_entry.grid(row=1, column=0, sticky="nsew", pady=(5, 5))
+        self.update_pass_entry = tk.Entry(self.main_window)
+        self.update_pass_entry.grid(row=1, column=0, sticky="nsew", pady=(5, 5))
 
-        update_pass_btn = tk.Button(self.main_window, text="Update a Password",
-                                    command=None)
-        update_pass_btn.grid(row=1, column=1, sticky="nsew", pady=(5, 5))
+        self.update_pass_btn = tk.Button(self.main_window, 
+                                         text="Update a Password",
+                                         command=None)
+        self.update_pass_btn.grid(row=1, column=1, sticky="nsew", pady=(5, 5))
 
         # Look Up Password
 
-        lookup_pass_entry = tk.Entry(self.main_window)
-        lookup_pass_entry.grid(row=2, column=0, sticky="nsew", pady=(5, 5))
+        self.lookup_pass_entry = tk.Entry(self.main_window)
+        self.lookup_pass_entry.grid(row=2, column=0, sticky="nsew", pady=(5, 5))
 
-        lookup_pass_btn = tk.Button(self.main_window, text="Look Up a Password",
-                                    command=None)
-        lookup_pass_btn.grid(row=2, column=1, sticky="nsew", pady=(5, 5))
+        self.lookup_pass_btn = tk.Button(self.main_window,
+                                         text="Look Up a Password",
+                                         command=None)
+        self.lookup_pass_btn.grid(row=2, column=1, sticky="nsew", pady=(5, 5))
 
         # Copy Password
 
-        copy_pass_entry = tk.Entry(self.main_window)
-        copy_pass_entry.grid(row=3, column=0, sticky="nsew", pady=(5, 5))
+        self.copy_pass_entry = tk.Entry(self.main_window)
+        self.copy_pass_entry.grid(row=3, column=0, sticky="nsew", pady=(5, 5))
 
-        copy_pass_btn = tk.Button(self.main_window, text="Copy a Password",
-                                  command=None)
-        copy_pass_btn.grid(row=3, column=1, sticky="nsew", pady=(5, 5))
+        self.copy_pass_btn = tk.Button(self.main_window, text="Copy a Password",
+                                       command=None)
+        self.copy_pass_btn.grid(row=3, column=1, sticky="nsew", pady=(5, 5))
 
         # Delete a Password
 
-        delete_pass_entry = tk.Entry(self.main_window)
-        delete_pass_entry.grid(row=4, column=0, sticky="nsew", pady=(5, 10))
+        self.delete_pass_entry = tk.Entry(self.main_window)
+        self.delete_pass_entry.grid(row=4, column=0, sticky="nsew", pady=(5, 10))
 
-        delete_pass_btn = tk.Button(self.main_window, text="Delete a Password",
-                                    command=None)
-        delete_pass_btn.grid(row=4, column=1, sticky="nsew", pady=(5, 10))
+        self.delete_pass_btn = tk.Button(self.main_window,
+                                         text="Delete a Password",
+                                         command=None)
+        self.delete_pass_btn.grid(row=4, column=1, sticky="nsew", pady=(5, 10))
 
         # Start Mainloop
         self.main_window.mainloop()
 
     def add_password(self):
-        pass
+        def add_pass_to_file(event=None):
+            key = self.add_pass_entry.get()
+            password1 = password_entry1.get()
+            password2 = password_entry2.get()
+
+            try:
+                with open(self.passwords_file, "rb") as file:
+                    passwords = pickle.load(file)
+            except EOFError:
+                if password1 != password2:
+                    messagebox.showerror("Password Manager - Error",
+                                         "Passwords don't match.")
+                else:
+                    passwords = {key: encrypt(password1)}
+                    with open(self.passwords_file, "wb") as file:
+                        pickle.dump(passwords, file)
+                        new_window.destroy()
+                        self.add_pass_entry.delete(0, "end")
+            except FileNotFoundError:
+                if password1 != password2:
+                    messagebox.showerror("Password Manager - Error",
+                                         "Passwords don't match.")
+                else:
+                    passwords = {key: encrypt(password1)}
+                    with open(self.passwords_file, "wb") as file:
+                        pickle.dump(passwords, file)
+                        new_window.destroy()
+                        self.add_pass_entry.delete(0, "end")
+            else:
+                if password1 != password2:
+                    messagebox.showerror("Password Manager - Error",
+                                         "Passwords don't match.")
+                elif key in passwords:
+                    messagebox.showerror("Password Manager - Error",
+                                         "Already exists.")
+                else:
+                    passwords[key] = encrypt(password1)
+                    with open(self.passwords_file, "wb") as file:
+                        pickle.dump(passwords, file)
+                        new_window.destroy()
+                        self.add_pass_entry.delete(0, "end")
+
+        key = self.add_pass_entry.get()
+        if key == "":
+            messagebox.showwarning("Password Manager - Warning",
+                                   "Bad Key")
+            return
+
+        # Create New window
+        new_window = tk.Toplevel(self.main_window)
+
+        # Add widgets
+        password_label1 = tk.Label(new_window, text="Enter Password")
+        password_label2 = tk.Label(new_window, text="Confirm Password")
+
+        password_label1.grid(row=0, column=0, sticky="nsew")
+        password_label2.grid(row=1, column=0, sticky="nsew")
+
+        password_entry1 = tk.Entry(new_window)
+        password_entry2 = tk.Entry(new_window)
+
+        password_entry1.grid(row=0, column=1, sticky="nsew")
+        password_entry2.grid(row=1, column=1, sticky="nsew")
+
+        add_btn = tk.Button(new_window, text="Add",
+                                   command=add_pass_to_file)
+        add_btn.grid(row=2, column=1, sticky="nsew")
+
+        # Key Bindings
+        new_window.bind("<Return>", add_pass_to_file)
+
 
     def update_password(self):
-        pass
+        def update_pass(event=None):
+            with open(self.passwords_file, "wb") as file:
+                pickle.dump(passwords, file)
+
+        try:
+            with open(self.passwords_file, "rb") as file:
+                passwords = pickle.load(file)
+        except EOFError:
+            messagebox.showerror("Password Manager - Error",
+                                 "Key doesn't exist")
+        except FileNotFoundError:
+            messagebox.showerror("Password Manager - Error",
+                                 "Key doesn't exist")
+        else:
+            key = self.update_pass_entry.get()
+
+            if key not in passwords:
+                messagebox.showerror("Password Manager - Error",
+                                     "Key doesn't exist")
+                return
+
+            # Create New window
+            new_window = tk.Toplevel(self.main_window)
+
+            # Add widgets
+            password_label1 = tk.Label(new_window, text="Enter Password")
+            password_label2 = tk.Label(new_window, text="Confirm Password")
+
+            password_label1.grid(row=0, column=0, sticky="nsew")
+            password_label2.grid(row=1, column=0, sticky="nsew")
+
+            password_entry1 = tk.Entry(new_window)
+            password_entry2 = tk.Entry(new_window)
+
+            password_entry1.grid(row=0, column=1, sticky="nsew")
+            password_entry2.grid(row=1, column=1, sticky="nsew")
+
+            add_btn = tk.Button(new_window, text="Update",
+                                       command=update_pass)
+            add_btn.grid(row=2, column=1, sticky="nsew")
+
+            # Key Bindings
+            new_window.bind("<Return>", update_pass)
 
     def lookup_password(self):
         pass
