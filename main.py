@@ -42,7 +42,7 @@ class Login:
         self.create_account_btn = tk.Button(self.login_window,
                                             text="Create Account",
                                             command=lambda: CreateAccount())
-        self.create_account_btn.grid(row=2, column=1, sticky="nsew")
+        self.create_account_btn.grid(row=2, column=0, sticky="nsew")
 
         # Key Bindings
         self.login_window.bind("<Return>", self.validate_login)
@@ -207,7 +207,7 @@ class PasswordManager:
 
         self.update_pass_btn = tk.Button(self.main_window, 
                                          text="Update a Password",
-                                         command=None)
+                                         command=self.update_password)
         self.update_pass_btn.grid(row=1, column=1, sticky="nsew", pady=(5, 5))
 
         # Look Up Password
@@ -217,7 +217,7 @@ class PasswordManager:
 
         self.lookup_pass_btn = tk.Button(self.main_window,
                                          text="Look Up a Password",
-                                         command=None)
+                                         command=self.lookup_password)
         self.lookup_pass_btn.grid(row=2, column=1, sticky="nsew", pady=(5, 5))
 
         # Copy Password
@@ -226,17 +226,18 @@ class PasswordManager:
         self.copy_pass_entry.grid(row=3, column=0, sticky="nsew", pady=(5, 5))
 
         self.copy_pass_btn = tk.Button(self.main_window, text="Copy a Password",
-                                       command=None)
+                                       command=self.copy_password)
         self.copy_pass_btn.grid(row=3, column=1, sticky="nsew", pady=(5, 5))
 
         # Delete a Password
 
         self.delete_pass_entry = tk.Entry(self.main_window)
-        self.delete_pass_entry.grid(row=4, column=0, sticky="nsew", pady=(5, 10))
+        self.delete_pass_entry.grid(row=4, column=0, sticky="nsew",
+                                    pady=(5, 10))
 
         self.delete_pass_btn = tk.Button(self.main_window,
                                          text="Delete a Password",
-                                         command=None)
+                                         command=self.delete_password)
         self.delete_pass_btn.grid(row=4, column=1, sticky="nsew", pady=(5, 10))
 
         # Start Mainloop
@@ -248,127 +249,233 @@ class PasswordManager:
             password1 = password_entry1.get()
             password2 = password_entry2.get()
 
+            if password1 != password2:
+                messagebox.showerror("Password Manager - Error",
+                                     "Passwords don't match.")
+                self.lookup_pass_entry.delete(0, "end")
+
             try:
                 with open(self.passwords_file, "rb") as file:
                     passwords = pickle.load(file)
             except EOFError:
-                if password1 != password2:
-                    messagebox.showerror("Password Manager - Error",
-                                         "Passwords don't match.")
-                else:
-                    passwords = {key: encrypt(password1)}
-                    with open(self.passwords_file, "wb") as file:
-                        pickle.dump(passwords, file)
-                        new_window.destroy()
-                        self.add_pass_entry.delete(0, "end")
+                passwords = {key: encrypt(password1)}
+                with open(self.passwords_file, "wb") as file:
+                    pickle.dump(passwords, file)
+                    new_window.destroy()
+                    self.add_pass_entry.delete(0, "end")
             except FileNotFoundError:
-                if password1 != password2:
-                    messagebox.showerror("Password Manager - Error",
-                                         "Passwords don't match.")
-                else:
-                    passwords = {key: encrypt(password1)}
-                    with open(self.passwords_file, "wb") as file:
-                        pickle.dump(passwords, file)
-                        new_window.destroy()
-                        self.add_pass_entry.delete(0, "end")
+                passwords = {key: encrypt(password1)}
+                with open(self.passwords_file, "wb") as file:
+                    pickle.dump(passwords, file)
+                    new_window.destroy()
+                    self.add_pass_entry.delete(0, "end")
             else:
-                if password1 != password2:
-                    messagebox.showerror("Password Manager - Error",
-                                         "Passwords don't match.")
-                elif key in passwords:
-                    messagebox.showerror("Password Manager - Error",
-                                         "Already exists.")
-                else:
-                    passwords[key] = encrypt(password1)
-                    with open(self.passwords_file, "wb") as file:
-                        pickle.dump(passwords, file)
-                        new_window.destroy()
-                        self.add_pass_entry.delete(0, "end")
+                passwords[key] = encrypt(password1)
+                with open(self.passwords_file, "wb") as file:
+                    pickle.dump(passwords, file)
+                    new_window.destroy()
+                    self.add_pass_entry.delete(0, "end")
 
-        key = self.add_pass_entry.get()
-        if key == "":
-            messagebox.showwarning("Password Manager - Warning",
-                                   "Bad Key")
-            return
 
-        # Create New window
-        new_window = tk.Toplevel(self.main_window)
+        try:
+            with open(self.passwords_file, "rb") as file:
+                passwords = pickle.load(file)
+        except EOFError:
+            passwords = {}
+        except FileNotFoundError:
+            passwords = {}
+        finally:
+            key = self.add_pass_entry.get()
+            if key == "":
+                messagebox.showwarning("Password Manager - Warning",
+                                       "Bad Key")
+                self.lookup_pass_entry.delete(0, "end")
+                return
+            elif key in passwords:
+                messagebox.showerror("Password Manager - Error",
+                                     "Alredy Exists")
+                self.lookup_pass_entry.delete(0, "end")
+                return
+            else:
+                # Create New window
+                new_window = tk.Toplevel(self.main_window)
 
-        # Add widgets
-        password_label1 = tk.Label(new_window, text="Enter Password")
-        password_label2 = tk.Label(new_window, text="Confirm Password")
+                # Add widgets
+                password_label1 = tk.Label(new_window, text="Enter Password")
+                password_label2 = tk.Label(new_window, text="Confirm Password")
 
-        password_label1.grid(row=0, column=0, sticky="nsew")
-        password_label2.grid(row=1, column=0, sticky="nsew")
+                password_label1.grid(row=0, column=0, sticky="nsew")
+                password_label2.grid(row=1, column=0, sticky="nsew")
 
-        password_entry1 = tk.Entry(new_window)
-        password_entry2 = tk.Entry(new_window)
+                password_entry1 = tk.Entry(new_window, show="*")
+                password_entry2 = tk.Entry(new_window, show="*")
 
-        password_entry1.grid(row=0, column=1, sticky="nsew")
-        password_entry2.grid(row=1, column=1, sticky="nsew")
+                password_entry1.grid(row=0, column=1, sticky="nsew")
+                password_entry2.grid(row=1, column=1, sticky="nsew")
 
-        add_btn = tk.Button(new_window, text="Add",
-                                   command=add_pass_to_file)
-        add_btn.grid(row=2, column=1, sticky="nsew")
+                add_btn = tk.Button(new_window, text="Add",
+                                           command=add_pass_to_file)
+                add_btn.grid(row=2, column=1, sticky="nsew")
 
-        # Key Bindings
-        new_window.bind("<Return>", add_pass_to_file)
+                # Key Bindings
+                new_window.bind("<Return>", add_pass_to_file)
 
 
     def update_password(self):
         def update_pass(event=None):
-            with open(self.passwords_file, "wb") as file:
-                pickle.dump(passwords, file)
+            key = self.update_pass_entry.get()
+            password1 = password_entry1.get()
+            password2 = password_entry2.get()
+
+            if password1 != password2:
+                messagebox.showerror("Password Manager - Error",
+                                     "Passwords don't match.")
+                return
+            else:
+                passwords[key] = encrypt(password1)
+                with open(self.passwords_file, "wb") as file:
+                    pickle.dump(passwords, file)
+                    new_window.destroy()
+                    self.update_pass_entry.delete(0, "end")
 
         try:
             with open(self.passwords_file, "rb") as file:
                 passwords = pickle.load(file)
         except EOFError:
             messagebox.showerror("Password Manager - Error",
-                                 "Key doesn't exist")
+                                 "Not Found")
+            self.update_pass_entry.delete(0, "end")
         except FileNotFoundError:
             messagebox.showerror("Password Manager - Error",
-                                 "Key doesn't exist")
+                                 "Not Found")
+            self.update_pass_entry.delete(0, "end")
         else:
             key = self.update_pass_entry.get()
 
             if key not in passwords:
                 messagebox.showerror("Password Manager - Error",
-                                     "Key doesn't exist")
+                                     "Not Found")
+                self.update_pass_entry.delete(0, "end")
                 return
+            else:
+                # Create New window
+                new_window = tk.Toplevel(self.main_window)
 
-            # Create New window
-            new_window = tk.Toplevel(self.main_window)
+                # Add widgets
+                password_label1 = tk.Label(new_window, text="Enter Password")
+                password_label2 = tk.Label(new_window, text="Confirm Password")
 
-            # Add widgets
-            password_label1 = tk.Label(new_window, text="Enter Password")
-            password_label2 = tk.Label(new_window, text="Confirm Password")
+                password_label1.grid(row=0, column=0, sticky="nsew")
+                password_label2.grid(row=1, column=0, sticky="nsew")
 
-            password_label1.grid(row=0, column=0, sticky="nsew")
-            password_label2.grid(row=1, column=0, sticky="nsew")
+                password_entry1 = tk.Entry(new_window, show="*")
+                password_entry2 = tk.Entry(new_window, show="*")
 
-            password_entry1 = tk.Entry(new_window)
-            password_entry2 = tk.Entry(new_window)
+                password_entry1.grid(row=0, column=1, sticky="nsew")
+                password_entry2.grid(row=1, column=1, sticky="nsew")
 
-            password_entry1.grid(row=0, column=1, sticky="nsew")
-            password_entry2.grid(row=1, column=1, sticky="nsew")
+                add_btn = tk.Button(new_window, text="Update",
+                                           command=update_pass)
+                add_btn.grid(row=2, column=1, sticky="nsew")
 
-            add_btn = tk.Button(new_window, text="Update",
-                                       command=update_pass)
-            add_btn.grid(row=2, column=1, sticky="nsew")
-
-            # Key Bindings
-            new_window.bind("<Return>", update_pass)
+                # Key Bindings
+                new_window.bind("<Return>", update_pass)
 
     def lookup_password(self):
-        pass
+        try:
+            with open(self.passwords_file, "rb") as file:
+                passwords = pickle.load(file)
+        except EOFError:
+            messagebox.showerror("Password Manager - Error",
+                                 "Not Found")
+            self.lookup_pass_entry.delete(0, "end")
+        except FileNotFoundError:
+            messagebox.showerror("Password Manager - Error",
+                                 "Not Found")
+            self.lookup_pass_entry.delete(0, "end")
+        else:
+            key = self.lookup_pass_entry.get()
+
+            if key not in passwords:
+                messagebox.showerror("Password Manager - Error",
+                                     "Not Found")
+                self.lookup_pass_entry.delete(0, "end")
+                return
+            else:
+                encrypted_password = passwords[key]
+                decrypted_password = decrypt(encrypted_password)
+
+                messagebox.showinfo("Password Manager",
+                                    f"{key}: {decrypted_password}")
+                self.lookup_pass_entry.delete(0, "end")
 
     def copy_password(self):
-        pass
+        try:
+            with open(self.passwords_file, "rb") as file:
+                passwords = pickle.load(file)
+        except EOFError:
+            messagebox.showerror("Password Manager - Error",
+                                 "Not Found")
+            self.copy_pass_entry.delete(0, "end")
+        except FileNotFoundError:
+            messagebox.showerror("Password Manager - Error",
+                                 "Not Found")
+            self.copy_pass_entry.delete(0, "end")
+        else:
+            key = self.copy_pass_entry.get()
+
+            if key not in passwords:
+                messagebox.showerror("Password Manager - Error",
+                                     "Not Found")
+                self.copy_pass_entry.delete(0, "end")
+                return
+            else:
+                encrypted_password = passwords[key]
+                decrypted_password = decrypt(encrypted_password)
+
+                self.main_window.clipboard_clear()
+                self.main_window.clipboard_append(decrypted_password)
+
+                messagebox.showinfo("Password Manager",
+                                    "Password copied to clipboard.")
+                self.copy_pass_entry.delete(0, "end")
 
     def delete_password(self):
-        pass
+        try:
+            with open(self.passwords_file, "rb") as file:
+                passwords = pickle.load(file)
+        except EOFError:
+            messagebox.showerror("Password Manager - Error",
+                                 "Not Found")
+            self.delete_pass_entry.delete(0, "end")
+        except FileNotFoundError:
+            messagebox.showerror("Password Manager - Error",
+                                 "Not Found")
+            self.delete_pass_entry.delete(0, "end")
+        else:
+            key = self.delete_pass_entry.get()
 
+            if key not in passwords:
+                messagebox.showerror("Password Manager - Error",
+                                     "Not Found")
+                self.delete_pass_entry.delete(0, "end")
+                return
+            else:
+                response = messagebox.askokcancel("Password Manager",
+                                       "This item will be deleted" + \
+                                       " immediately. You can’t" +\
+                                       " undo this action")
+                
+                if response:
+                    del passwords[key]
+
+                    with open(self.passwords_file, "wb") as file:
+                        pickle.dump(passwords, file)
+                        messagebox.showinfo("Password Manager",
+                                            "Password deleted successfully")
+                        self.delete_pass_entry.delete(0, "end")
+                else:
+                    self.delete_pass_entry.delete(0, "end")
 
 # Functions
 
