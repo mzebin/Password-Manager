@@ -240,8 +240,20 @@ class PasswordManager:
                                          command=self.delete_password)
         self.delete_pass_btn.grid(row=4, column=1, sticky="nsew", pady=(5, 10))
 
+        # Logout
+
+        self.logout_btn = tk.Button(self.main_window,
+                                    text="Logout",
+                                    command=self.logout)
+        self.logout_btn.grid(row=5, column=0, columnspan=2, sticky="nsew",
+                             pady=(0, 10))
+
         # Start Mainloop
         self.main_window.mainloop()
+
+    def logout(self):
+        self.main_window.destroy()
+        Login()
 
     def add_password(self):
         def add_pass_to_file(event=None):
@@ -289,16 +301,17 @@ class PasswordManager:
             if key == "":
                 messagebox.showwarning("Password Manager - Warning",
                                        "Bad Key")
-                self.lookup_pass_entry.delete(0, "end")
+                self.add_pass_entry.delete(0, "end")
                 return
             elif key in passwords:
                 messagebox.showerror("Password Manager - Error",
                                      "Alredy Exists")
-                self.lookup_pass_entry.delete(0, "end")
+                self.add_pass_entry.delete(0, "end")
                 return
             else:
                 # Create New window
                 new_window = tk.Toplevel(self.main_window)
+                new_window.resizable(0, 0)
 
                 # Add widgets
                 password_label1 = tk.Label(new_window, text="Enter Password")
@@ -360,6 +373,7 @@ class PasswordManager:
             else:
                 # Create New window
                 new_window = tk.Toplevel(self.main_window)
+                new_window.resizable(0, 0)
 
                 # Add widgets
                 password_label1 = tk.Label(new_window, text="Enter Password")
