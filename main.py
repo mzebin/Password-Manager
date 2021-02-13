@@ -125,7 +125,7 @@ class CreateAccount:
             with open("Data Files/Users/users.dat", "rb") as file:
                 users = pickle.load(file)
         except EOFError:
-            if len(username) < 2:
+            if len(username) > 2:
                 if password1 != password2:
                     messagebox.showerror("Password Manager - Error",
                                          "Passwords don't match.")
